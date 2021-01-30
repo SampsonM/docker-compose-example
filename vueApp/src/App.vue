@@ -2,33 +2,62 @@
   <div id="app">
     ey, {{ data }}
 
-    <br>
-    <br>
     <div>
-      <input type="text" v-model="url">
-      <button @click="getUrlShort">Get URL Shortened</button>
+      <input type="text" v-model="URL">
+      <button @click="addURL">Get URL Shortened</button>
     </div>
+
+    <ul>
+      <li 
+        v-for="(url, i) in allURLs"
+        :key="i">
+        {{ url }}
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
-
 export default {
-  name: 'App',
   data() {
     return {
-      url: '',
+      URL: '',
+      allURLs: [],
       data: 'enter a url to shorten'
     }
   },
+  async mounted() {
+    try {
+      const response = await fetch('http://localhost:3031/')
+      const allURLs = await response.json()
+    
+      this.allURLs = allURLs
+    
+    } catch (error) {
+      this.data = "Couldn't get all URL's"
+    }
+  },
   methods: {
-    async getUrlShort() {
+    async addURL() {
       try {
         this.data = 'getting shortend URL'
 
-        const response = await fetch(`http://localhost:3031/?url=${this.url}/`)
+        const requestData = {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: this.URL })
+        }
+
+        const response = await fetch('http://localhost:3031/', requestData)
         const data = await response.json()
-        
+
+        if (data.URLs) {
+          this.allURLs = data.URLs
+        }
+
         this.data = data
 
       } catch (error) {

@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyparser = require('body-parser')
 const mongooseConnect = require('./mongoConnect')
-const getURL = require('../controllers')
+const URLController = require('../controllers')
 
 function main() {
   const app = express()
@@ -16,7 +16,8 @@ function main() {
 
   mongooseConnect()
 
-  app.get('/', getURL)
+  app.post('/', URLController.addURL)
+  app.get('/', URLController.getAllURLs)
   
   app.listen('9090', () => {
     console.log('my rest api running on port 9090')
