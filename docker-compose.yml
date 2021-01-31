@@ -1,9 +1,19 @@
 version: "3.9"
 
+# service name
+#   image/build:      Location or name or image to build
+#   container_name:   Used to reference within containers/depends_on instructions
+#   ports:            The port to expose XXXX:YYYY === external_PORT:internal_PORT
+#   volumes:          Allows hot module reload of apps
+#   working_dir:      Sets the directory in which to run any command/CMD for image
+
+# Containers to be run
 services:
+
+  # Express server which lives under nodeApp folder
   server:
     build: "./nodeApp"
-    container_name: nodeapp
+    container_name: node-app
     ports:
       - "3031:9090"
     volumes:
@@ -12,6 +22,7 @@ services:
     depends_on:
       - mongodb
 
+  # Vue app which lieves under vueApp folder
   web:
     build: "./vueApp"
     container_name: vue-app
@@ -21,8 +32,10 @@ services:
       - ./:/vueApp:cached
     working_dir: /vueApp/vueApp
 
+  # MongodDB image to be run using default mongodb image from docker
   mongodb:
     image: mongo:latest
     container_name: mongodb
     ports:
         - 27017:27017
+
