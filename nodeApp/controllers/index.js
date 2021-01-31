@@ -14,11 +14,9 @@ async function addURL(req, res) {
 async function handleURL(requestURL) {
   const dbURL = await URLModel.find({ URL: requestURL }).lean()
 
-  console.log(requestURL, dbURL)
-
   if (dbURL.length == 0) {
     const savedURL = await saveURL(requestURL)
-    const URLs = await getAllURLs()
+    const URLs = await URLModel.find().lean()
     
     return { url: savedURL, existed: false, URLs }
 
@@ -35,17 +33,32 @@ async function saveURL(url) {
     'URL': url
   })
 
-  return await newURL.save()
+  const savedURL = await newURL.save()
+
+  return savedURL
 }
 
 function shortenURL(url) {
-  return url
+  let shortURL = ''
+
+  for (let i = 0; i < 4; i++) {
+    const num = randomIntFromInterval(48, 57)
+    const char = randomIntFromInterval(65, 90)
+
+    shortURL += `${String.fromCharCode(num)}${String.fromCharCode(char)}`
+  }
+
+  return shortURL
+}
+
+function randomIntFromInterval(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
 async function getAllURLs(req, res) {
   try {
     const URLs = await URLModel.find().lean()
-  
+
     return res.status(200).json(URLs)
 
   } catch (error) {

@@ -2,18 +2,25 @@
   <div id="app">
     ey, {{ data }}
 
-    <div>
+    <form
+      class="search"
+      @submit.prevent="addURL">
       <input type="text" v-model="URL">
-      <button @click="addURL">Get URL Shortened</button>
-    </div>
+      <button type="submit">Get URL Shortened</button>
+    </form>
 
-    <ul>
-      <li 
-        v-for="(url, i) in allURLs"
+    <table>
+      <tr>
+        <th>Original URL</th>
+        <th>Shortened URL</th>
+      </tr>
+      <tr
+        v-for="(urlData, i) in allURLData"
         :key="i">
-        {{ url }}
-      </li>
-    </ul>
+        <td>{{ urlData.URL }}</td>
+        <td>{{ urlData.shortURL }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -22,20 +29,12 @@ export default {
   data() {
     return {
       URL: '',
-      allURLs: [],
+      allURLData: [],
       data: 'enter a url to shorten'
     }
   },
   async mounted() {
-    try {
-      const response = await fetch('http://localhost:3031/')
-      const allURLs = await response.json()
-    
-      this.allURLs = allURLs
-    
-    } catch (error) {
-      this.data = "Couldn't get all URL's"
-    }
+    this.getURLs()
   },
   methods: {
     async addURL() {
@@ -51,17 +50,30 @@ export default {
           body: JSON.stringify({ url: this.URL })
         }
 
+        this.URL = ''
+
         const response = await fetch('http://localhost:3031/', requestData)
         const data = await response.json()
 
         if (data.URLs) {
-          this.allURLs = data.URLs
+          this.allURLData = data.URLs
         }
 
-        this.data = data
+        this.data = 'Your new shortened URL: ' + data.url.shortURL
 
       } catch (error) {
         this.data = error
+      }
+    },
+    async getURLs() {
+      try {
+        const response = await fetch('http://localhost:3031/')
+        const allURLData = await response.json()
+      
+        this.allURLData = allURLData
+      
+      } catch (error) {
+        this.data = "Couldn't get all URL's"
       }
     }
   }
@@ -76,5 +88,25 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.search {
+  margin: 10px 0;
+}
+
+.search input {
+  margin-right: 10px;
+}
+
+table {
+  text-align: left;
+}
+
+th { 
+  min-width: 300px;
+}
+
+td {
+  padding-right: 15px;
 }
 </style>
